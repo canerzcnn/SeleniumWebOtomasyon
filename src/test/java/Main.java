@@ -1,5 +1,6 @@
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.poi.ss.formula.functions.T;
+import org.apache.poi.ss.usermodel.*;
 import org.junit.Before;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -9,10 +10,14 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         WebDriverManager.chromedriver().setup();
         WebDriver driver = new ChromeDriver();
         driver.manage().window().maximize();    //fullscreen
@@ -38,23 +43,38 @@ public class Main {
         }
         Thread.sleep(1500);
 
-        //Excelden veriyi çekemedim
+        //Excelden veriyi çekme
+
+        String dosyaYolu= "src/test/java/data.xlsx";
+        FileInputStream fis = new FileInputStream(dosyaYolu);
+        Workbook workbook = WorkbookFactory.create(fis);
+        Sheet sheet = workbook.getSheet("Sayfa1");
+
+        System.out.println(workbook.getSheet("Sayfa1").getRow(0).getCell(0));
+        String cell1 = workbook.getSheet("Sayfa1").getRow(0).getCell(0).toString();
+        System.out.println(cell1);
+        System.out.println(workbook.getSheet("Sayfa1").getRow(1).getCell(0));
+        String cell2 = workbook.getSheet("Sayfa1").getRow(1).getCell(0).toString();
+        System.out.println(cell2);
+
         WebElement searchButton = driver.findElement(By.xpath("//input[@class = 'default-input o-header__search--input']"));
         searchButton.click();
-        searchButton.sendKeys("şort");
+        searchButton.sendKeys(cell1);
         Thread.sleep(500);
+        searchButton.clear();
         searchButton.sendKeys(Keys.BACK_SPACE);
         searchButton.sendKeys(Keys.BACK_SPACE);
         searchButton.sendKeys(Keys.BACK_SPACE);
         searchButton.sendKeys(Keys.BACK_SPACE);
         Thread.sleep(1000);
-        searchButton.sendKeys("gömlek");
+        searchButton.sendKeys(cell2);
         searchButton.sendKeys(Keys.ENTER);
         Thread.sleep(5000);
 
         WebElement product = driver.findElement(By.xpath("//div[@class = 'm-productImageList']"));
         product.click();
         Thread.sleep(1200);
+
         //ürün bilgisi
         WebElement productDesc = driver.findElement(By.xpath("//span[@class = 'o-productDetail__description']"));
         String productText = productDesc.getText();
@@ -64,6 +84,7 @@ public class Main {
         String priceText = productPrice.getText();
         System.out.println(priceText);
         Thread.sleep(1000);
+
         //Size
         WebElement productSize = driver.findElement(By.xpath("//span[@class = 'm-variation__item']"));
         String sizeText = productSize.getText();
@@ -97,15 +118,14 @@ public class Main {
 
         WebElement addToPiece = driver.findElement(By.xpath("//option[@value = '2']"));
         addToPiece.click();
-        Thread.sleep(1000);
+        Thread.sleep(1500);
 
         WebElement removedToCart = driver.findElement(By.id("removeCartItemBtn0-key-0"));
         removedToCart.click();
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         WebElement emptyProduct = driver.findElement(By.xpath("//div[@id='emtyCart']//strong[@class = 'm-empty__messageTitle']"));
         String emptyProductText = emptyProduct.getText();
         System.out.println(emptyProductText);   //Sepetin boş olduğu kontrolü
-
 
         driver.quit();
     }
